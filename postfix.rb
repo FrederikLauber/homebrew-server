@@ -20,6 +20,9 @@ class Postfix < Formula
     system "make -f Makefile.init makefiles dynamicmaps=yes shared=yes command_directory=#{sbin} config_directory=#{etc}/postfix daemon_directory=#{libexec}/postfix data_directory=#{var}/lib mail_spool_directory=#{var}/mail mailq_path=#{bin}/mailq meta_directory=#{etc}/postfix newaliases_path=#{bin}/newaliases openssl_path=#{openssl.opt_bin}/openssl queue_directory=#{var}/spool/postfix sendmail_path=#{sbin}/sendmail shlib_directory=#{lib}/postfix CCARGS='-DUSE_SASL_AUTH -DDEF_SERVER_SASL_TYPE=\\\"dovecot\\\" -DHAS_PCRE -I#{pcre.opt_include} -DUSE_TLS -I#{openssl.opt_include}/openssl -DHAS_SQLITE -I#{sqlite.opt_include}' AUXLIBS_SQLITE='-L#{sqlite.opt_lib} -lsqlite3 -lpthread' AUXLIBS_PCRE='-L#{pcre.opt_lib} -lpcre' AUXLIBS='-L#{openssl.opt_lib} -lssl -lcrypto -licuuc'"
     system "make"
     system "make install mail_owner=_postfix setgid_group=_postdrop"
+    
+    # Better to have the config point to the opt folder rather than the cellar so nothing breaks when versions change.
+    inreplace "#{etc}/postfix/main.cf", "#{prefix}", "#{opt_prefix}"
   end
   
   plist_options :startup => true
