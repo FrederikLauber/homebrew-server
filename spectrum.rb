@@ -9,7 +9,7 @@ class Spectrum < Formula
   depends_on "boost"
   depends_on "cmake"
   depends_on "cppunit"
-  depends_on "pidgin" => ["without-gui", "without-consoleui"]
+  depends_on "pidgin" => ["without-gui"]
   depends_on "libev"
   depends_on "libevent"
   depends_on "libswiften"
@@ -22,9 +22,10 @@ class Spectrum < Formula
   patch :DATA
   
   def install
+    ENV.deparallelize
     openssl = Formula["openssl"]
     
-    system "cmake . -DCMAKE_INSTALL_PREFIX=#{prefix} -DOPENSSL_INCLUDE_DIR=#{openssl.include} -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_OSX_SYSROOT=/ -Wno-dev"
+    system "cmake . -DCMAKE_INSTALL_PREFIX=#{prefix} -DOPENSSL_ROOT_DIR=#{openssl.prefix} -DOPENSSL_INCLUDE_DIR=#{openssl.include} -DOPENSSL_LIBRARIES=#{openssl.lib}/libssl.dylib -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_OSX_SYSROOT=/ -Wno-dev"
     
     system "make"
     system "make", "install"
@@ -67,7 +68,7 @@ end
 
 __END__
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d941288..0d7a545 100644
+index d941288..dec5bcf 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -85,6 +85,9 @@ if (WIN32)
@@ -80,6 +81,31 @@ index d941288..0d7a545 100644
  else(WIN32)
  	LIST_CONTAINS(contains -lboost_program_options ${SWIFTEN_LIBRARY})
  	if(contains)
+@@ -198,10 +201,10 @@ if (WIN32)
+ endif()
+ 
+ 
+-if (CMAKE_COMPILER_IS_GNUCXX)
++#if (CMAKE_COMPILER_IS_GNUCXX)
+ set(openssl_DIR "${CMAKE_SOURCE_DIR}/cmake_modules")
+ find_package(openssl)
+-endif()
++#endif()
+ 
+ if(ENABLE_IRC)
+ 	set(Communi_DIR "${CMAKE_SOURCE_DIR}/cmake_modules")
+@@ -439,9 +442,9 @@ include_directories(${EVENT_INCLUDE_DIRS})
+ include_directories(${SWIFTEN_INCLUDE_DIR})
+ include_directories(${Boost_INCLUDE_DIRS})
+ 
+-if (CMAKE_COMPILER_IS_GNUCXX)
++#if (CMAKE_COMPILER_IS_GNUCXX)
+ include_directories(${OPENSSL_INCLUDE_DIR})
+-endif()
++#endif()
+ 
+ ADD_SUBDIRECTORY(libtransport)
+ ADD_SUBDIRECTORY(plugin)
 diff --git a/backends/smstools3/main.cpp b/backends/smstools3/main.cpp
 index b31d496..f297d3f 100644
 --- a/backends/smstools3/main.cpp
@@ -302,6 +328,24 @@ index fe8b14d..66f34e6 100644
  
  # LIBTRANSPORT
  
+diff --git a/plugin/cpp/CMakeLists.txt b/plugin/cpp/CMakeLists.txt
+index 6a9d517..ff28edf 100644
+--- a/plugin/cpp/CMakeLists.txt
++++ b/plugin/cpp/CMakeLists.txt
+@@ -16,11 +16,11 @@ endif()
+ ADD_DEPENDENCIES(transport-plugin pb)
+ SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/../../include/transport/protocol.pb.cc PROPERTIES GENERATED 1)
+ 
+-if (CMAKE_COMPILER_IS_GNUCXX)
++#if (CMAKE_COMPILER_IS_GNUCXX)
+ 	if (NOT WIN32)
+ 	ADD_DEFINITIONS(-fPIC)
+ 	endif()
+-endif()
++#endif()
+ 
+ if (NOT WIN32)
+ 	TARGET_LINK_LIBRARIES(transport-plugin ${PROTOBUF_LIBRARY} ${LOG4CXX_LIBRARIES} ${Boost_LIBRARIES})
 diff --git a/spectrum/src/CMakeLists.txt b/spectrum/src/CMakeLists.txt
 index 4f901d0..2ccbd78 100644
 --- a/spectrum/src/CMakeLists.txt
@@ -418,10 +462,21 @@ index 32245f6..a8a05c7 100644
  # For skype:
  #backend=/usr/bin/xvfb-run -a -s "-screen 0 10x10x8" -f /tmp/x-skype-gw /usr/bin/spectrum2_skype_backend
 diff --git a/spectrum_manager/src/CMakeLists.txt b/spectrum_manager/src/CMakeLists.txt
-index 2fb114a..595f60a 100644
+index 2fb114a..ff00611 100644
 --- a/spectrum_manager/src/CMakeLists.txt
 +++ b/spectrum_manager/src/CMakeLists.txt
-@@ -18,16 +18,16 @@ target_link_libraries(spectrum2_manager transport ${APPLE_FRAMEWORKS})
+@@ -9,25 +9,25 @@ SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/../../include/transport/
+ target_link_libraries(spectrum2_manager transport ${SWIFTEN_LIBRARY} ${PROTOBUF_LIBRARIES})
+ 
+ add_definitions(-DMG_ENABLE_SSL)
+-if (CMAKE_COMPILER_IS_GNUCXX)
++#if (CMAKE_COMPILER_IS_GNUCXX)
+ target_link_libraries(spectrum2_manager ${OPENSSL_LIBRARIES})
+-endif()
++#endif()
+ 
+ if(APPLE)
+ target_link_libraries(spectrum2_manager transport ${APPLE_FRAMEWORKS})
  endif()
  INSTALL(TARGETS spectrum2_manager RUNTIME DESTINATION bin)
  
@@ -454,7 +509,7 @@ index a8eef61..1f8deeb 100644
 --- a/spectrum_manager/src/main.cpp
 +++ b/spectrum_manager/src/main.cpp
 @@ -41,7 +41,7 @@ int main(int argc, char **argv)
- 													 "Allowed options");
+ 										 "Allowed options");
  	desc.add_options()
  		("help,h", "Show help output")
 -		("config,c", boost::program_options::value<std::string>(&config_file)->default_value("/etc/spectrum2/spectrum_manager.cfg"), "Spectrum manager config file")
