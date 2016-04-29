@@ -9,6 +9,7 @@ class Spectrum2 < Formula
   depends_on "cmake" => :build
   depends_on "cppunit"
   depends_on "libev"
+  depends_on "libevent"
   depends_on "libswiften"
   depends_on "log4cxx"
   depends_on "mysql" => :optional
@@ -29,17 +30,30 @@ class Spectrum2 < Formula
     system "make"
     system "make install DESTDIR=#{prefix}"
 
+    if Dir.exist? "#{var}/lib/spectrum2_manager" then
+      (prefix/"var/lib").rmtree
+    else
+      (var/"lib").install Dir["#{prefix}/var/lib/*"]
+    end
+
     if Dir.exist? "#{etc}/spectrum2" then
-      # Remove etc folder so linking it isn't attempted.
       (prefix/"etc").rmtree
     else
       etc.install Dir["#{prefix}/etc/*"]
 
-      # File locations are hard-coded into the configuration files. Correct them.
-      inreplace ["#{etc}/spectrum2/backend-logging.cfg", "#{etc}/spectrum2/logging.cfg", "#{etc}/spectrum2/manager-logging.cfg", "#{etc}/spectrum2/spectrum_manager.cfg", "#{etc}/spectrum2/transports/spectrum_server_mode.cfg.example", "#{etc}/spectrum2/transports/spectrum.cfg.example"], "/var", "#{opt_prefix}/var"
+      inreplace ["#{etc}/spectrum2/backend-logging.cfg", "#{etc}/spectrum2/logging.cfg", "#{etc}/spectrum2/manager-logging.cfg", "#{etc}/spectrum2/spectrum_manager.cfg", "#{etc}/spectrum2/transports/spectrum_server_mode.cfg.example", "#{etc}/spectrum2/transports/spectrum.cfg.example"], "/var", "#{HOMEBREW_PREFIX}/var"
       inreplace ["#{etc}/spectrum2/spectrum_manager.cfg", "#{etc}/spectrum2/transports/spectrum_server_mode.cfg.example", "#{etc}/spectrum2/transports/spectrum.cfg.example"], "/etc", "#{HOMEBREW_PREFIX}/etc"
-      inreplace ["#{etc}/spectrum2/transports/spectrum_server_mode.cfg.example", "#{etc}/spectrum2/transports/spectrum.cfg.example"], "/usr/bin", "#{HOMEBREW_PREFIX}/bin"
+      inreplace ["#{etc}/spectrum2/transports/spectrum_server_mode.cfg.example", "#{etc}/spectrum2/transports/spectrum.cfg.example"] do |s|
+        s.gsub! "/usr/bin", "#{HOMEBREW_PREFIX}/bin"
+        s.sub! /jid = .+?\n/,  "\\0\nworking_dir = #{var}/lib/spectrum2/$jid/\npidfile = #{var}/run/spectrum2/$jid/spectrum2.pid\nportfile = #{var}/run/spectrum2/$jid/.port\n"
+      end
     end
+  end
+
+  def post_install
+    (var/"lib/spectrum2").mkpath
+    (var/"log/spectrum2").mkpath
+    (var/"run/spectrum2").mkpath
   end
 
   def caveats; <<-EOS.undent
@@ -61,6 +75,8 @@ class Spectrum2 < Formula
       <key>ProgramArguments</key>
       <array>
        <string>#{bin}/spectrum2_manager</string>
+       <string>-c</string>
+       <string>#{etc}/spectrum2/spectrum_manager.cfg</string>
        <string>start</string>
       </array>
       <key>RunAtLoad</key>
@@ -71,9 +87,9 @@ class Spectrum2 < Formula
        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
       </dict>
       <key>StandardErrorPath</key>
-      <string>#{var}/log/spectrum/spectrum.err</string>
+      <string>#{var}/log/spectrum2/spectrum2.err</string>
       <key>StandardOutPath</key>
-      <string>#{var}/log/spectrum/spectrum.log</string>
+      <string>#{var}/log/spectrum2/spectrum2.log</string>
      </dict>
     </plist>
     EOS
