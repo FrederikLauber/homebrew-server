@@ -1,14 +1,8 @@
-require "formula"
-
 class Prosody < Formula
   homepage "http://prosody.im"
   url "https://prosody.im/downloads/source/prosody-0.9.10.tar.gz"
   sha256 "4836eefed4d9bbb632cba24ac5bd8e9bc7c029a79d06084b00ffc70858d1662f"
-  version "0.9.10"
 
-  # url "https://hg.prosody.im/0.9/", :using => :hg
-  # revision 1
-  
   option "with-sqlite", "Build with SQLite support"
   
   depends_on "lua51"
@@ -110,22 +104,48 @@ class Prosody < Formula
       system "#{bin}/prosody-luarocks", "install", "luadbi-sqlite3", "SQLITE_DIR=#{Formula["sqlite"].opt_prefix}"
       system "#{bin}/prosody-luarocks", "install", "lposix"
     end
-    
-    # system "#{bin}/prosody-luarocks", "install", "lua-zlib"
   end
 
-  #def caveats; <<-EOS.undent
-  #  TODO: proper docs
-  #  Rocks install to: #{libexec}/lib/luarocks/rocks
-  #
-  #  You may need to run `prosody-luarocks install` inside the Homebrew build
-  #  environment for rocks to successfully build. To do this, first run `brew sh`.
-  #  EOS
-  #end
+  def caveats; <<-EOS.undent
+    For Prosody to work, you may need to create a prosody
+    user and group depending on your configuration file
+    options.
+    EOS
+  end
+
+  plist_options :startup => true
+
+  def plist; <<-EOS.undent
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+      <dict>
+        <key>Label</key>
+        <string>#{plist_name}</string>
+        <key>KeepAlive</key>
+        <false/>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>ProgramArguments</key>
+        <array>
+    	    <string>#{opt_bin}/prosodyctl</string>
+    	    <string>start</string>
+        </array>
+        <key>EnvironmentVariables</key>
+        <dict>
+        	<key>PATH</key>
+        	<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        </dict>
+        <key>StandardErrorPath</key>
+        <string>#{var}/log/dovecot/prosody.err</string>
+        <key>StandardOutPath</key>
+        <string>#{var}/log/dovecot/prosody.log</string>
+      </dict>
+    </plist>
+    EOS
+  end
 
   test do
     system "#{bin}/luarocks", "install", "say"
   end
 end
-
-# external_deps_dirs = { "/usr/local/opt/openssl" }
