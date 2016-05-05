@@ -8,21 +8,28 @@ class Postfix < Formula
   depends_on "icu4c"
   depends_on "sqlite"
   depends_on "openssl"
-  depends_on "pcre"
   
   patch :DATA
   
-  def install
+  def install    
     sqlite = Formula["sqlite"]
     openssl = Formula["openssl"]
-    pcre = Formula["pcre"]
     
-    system "make -f Makefile.init makefiles dynamicmaps=yes shared=yes command_directory=#{sbin} config_directory=#{etc}/postfix daemon_directory=#{libexec}/postfix data_directory=#{var}/lib mail_spool_directory=#{var}/mail mailq_path=#{bin}/mailq meta_directory=#{etc}/postfix newaliases_path=#{bin}/newaliases openssl_path=#{openssl.opt_bin}/openssl queue_directory=#{var}/spool/postfix sendmail_path=#{sbin}/sendmail shlib_directory=#{lib}/postfix CCARGS='-DUSE_SASL_AUTH -DDEF_SERVER_SASL_TYPE=\\\"dovecot\\\" -DHAS_PCRE -I#{pcre.opt_include} -DUSE_TLS -I#{openssl.opt_include}/openssl -DHAS_SQLITE -I#{sqlite.opt_include}' AUXLIBS_SQLITE='-L#{sqlite.opt_lib} -lsqlite3 -lpthread' AUXLIBS_PCRE='-L#{pcre.opt_lib} -lpcre' AUXLIBS='-L#{openssl.opt_lib} -lssl -lcrypto -licuuc'"
+    system "make -f Makefile.init makefiles dynamicmaps=yes shared=yes command_directory=#{sbin} config_directory=#{etc}/postfix daemon_directory=#{libexec}/postfix data_directory=#{var}/lib mail_spool_directory=#{var}/mail mailq_path=#{bin}/mailq meta_directory=#{etc}/postfix newaliases_path=#{bin}/newaliases openssl_path=#{openssl.opt_bin}/openssl queue_directory=#{var}/spool/postfix sendmail_path=#{sbin}/sendmail shlib_directory=#{lib}/postfix CCARGS='-DUSE_SASL_AUTH -DDEF_SERVER_SASL_TYPE=\\\"dovecot\\\" -DUSE_TLS -I#{openssl.opt_include}/openssl -DHAS_SQLITE -I#{sqlite.opt_include}' AUXLIBS_SQLITE='-L#{sqlite.opt_lib} -lsqlite3 -lpthread' AUXLIBS='-L#{openssl.opt_lib} -lssl -lcrypto -licuuc'"
     system "make"
     system "make install mail_owner=_postfix setgid_group=_postdrop"
     
     # Better to have the config point to the opt folder rather than the cellar so nothing breaks when versions change.
     inreplace "#{etc}/postfix/main.cf", "#{prefix}", "#{opt_prefix}"
+  end
+  
+  def caveats; <<-EOS.undent
+    This formula patches postfix's install script so it doesn't need root privileges to run. Postfix requires permissions to be just right, so it is necessary to run the following commands with sudo manually:
+    
+    sudo chmod -R +x #{libexec}/postfix/*
+    sudo #{HOMEBREW_PREFIX}/sbin/postfix post-install create-missing
+    sudo #{HOMEBREW_PREFIX}/sbin/postfix set-permissions
+    EOS
   end
   
   plist_options :startup => true
@@ -34,25 +41,18 @@ class Postfix < Formula
       <dict>
         <key>Label</key>
         <string>#{plist_name}</string>
-        <key>OnDemand</key>
+        <key>KeepAlive</key>
         <false/>
         <key>RunAtLoad</key>
         <true/>
         <key>Program</key>
         <string>#{libexec}/postfix/master</string>
-        <key>ServiceDescription</key>
-        <string>Postfix mail transfer agent</string>
+        <key>StandardErrorPath</key>
+        <string>#{var}/log/postfix/postfix.err</string>
+        <key>StandardOutPath</key>
+        <string>#{var}/log/postfix/postfix.log</string>
       </dict>
     </plist>
-    EOS
-  end
-  
-  def caveats; <<-EOS.undent
-    This formula patches postfix's install script so it doesn't need root privileges to run. Postfix requires permissions to be just right, so it is necessary to run the following commands with sudo manually:
-    
-    sudo chmod -R +x #{libexec}/postfix
-    sudo #{HOMEBREW_PREFIX}/sbin/postfix post-install create-missing
-    sudo #{HOMEBREW_PREFIX}/sbin/postfix set-permissions
     EOS
   end
 end

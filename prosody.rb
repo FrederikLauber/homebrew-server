@@ -8,11 +8,17 @@ class Prosody < Formula
 
   # url "https://hg.prosody.im/0.9/", :using => :hg
   # revision 1
-
+  
+  option "with-sqlite", "Build with SQLite support"
+  
   depends_on "lua51"
   depends_on "expat"
   depends_on "libidn"
   depends_on "openssl"
+  
+  if build.with? "sqlite"
+    depends_on "sqlite"
+  end
 
   fails_with :llvm do
     cause "Lua itself compiles with llvm, but may fail when other software tries to link."
@@ -98,17 +104,24 @@ class Prosody < Formula
     system "#{bin}/prosody-luarocks", "install", "https://luarocks.org/manifests/brunoos/luasec-0.5-2.src.rock"
     system "#{bin}/prosody-luarocks", "install", "luafilesystem"
     system "#{bin}/prosody-luarocks", "install", "luaexpat", "EXPAT_DIR=#{Formula["expat"].opt_prefix}"
+    
+    if build.with? "sqlite"
+      system "#{bin}/prosody-luarocks", "install", "luadbi"
+      system "#{bin}/prosody-luarocks", "install", "luadbi-sqlite3", "SQLITE_DIR=#{Formula["sqlite"].opt_prefix}"
+      system "#{bin}/prosody-luarocks", "install", "lposix"
+    end
+    
     # system "#{bin}/prosody-luarocks", "install", "lua-zlib"
   end
 
-  def caveats; <<-EOS.undent
-    TODO: proper docs
-    Rocks install to: #{libexec}/lib/luarocks/rocks
-
-    You may need to run `prosody-luarocks install` inside the Homebrew build
-    environment for rocks to successfully build. To do this, first run `brew sh`.
-    EOS
-  end
+  #def caveats; <<-EOS.undent
+  #  TODO: proper docs
+  #  Rocks install to: #{libexec}/lib/luarocks/rocks
+  #
+  #  You may need to run `prosody-luarocks install` inside the Homebrew build
+  #  environment for rocks to successfully build. To do this, first run `brew sh`.
+  #  EOS
+  #end
 
   test do
     system "#{bin}/luarocks", "install", "say"
