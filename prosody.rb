@@ -331,7 +331,7 @@ class Prosody < Formula
     system "#{bin}/prosody-luarocks", "install", "luafilesystem"
     system "#{bin}/prosody-luarocks", "install", "luaexpat", "EXPAT_DIR=#{Formula["expat"].opt_prefix}"
     
-    if build.with? "sqlite"
+    #if build.with? "sqlite"
     #  system "#{bin}/prosody-luarocks", "install", "luadbi"
     #  system "#{bin}/prosody-luarocks", "install", "luadbi-sqlite3", "SQLITE_DIR=#{Formula["sqlite"].opt_prefix}"
     #  system "#{bin}/prosody-luarocks", "install", "lposix"
