@@ -2,17 +2,245 @@ class Prosody < Formula
   homepage "http://prosody.im"
   url "https://prosody.im/downloads/source/prosody-0.9.10.tar.gz"
   sha256 "4836eefed4d9bbb632cba24ac5bd8e9bc7c029a79d06084b00ffc70858d1662f"
-
-  option "with-sqlite", "Build with SQLite support"
   
+  def self.modules
+    {
+      "addressing" => "Add XEP-0033: Extended Stanza Addressing to Prosody",
+      "adhoc-account-management" => "Add XEP-0077: In-Band Registration to Prosody",
+      "adhoc-blacklist" => "Add the edit blacklist command in XEP-0133: Service Administration to Prosody",
+      "admin-blocklist" => "",
+      "admin-message" => "",
+      "admin-probe" => "",
+      "admin-web" => "",
+      "alias" => "",
+      "auth-any" => "",
+      "auth-ccert" => "",
+      "auth-custom-http" => "",
+      "auth-dovecot" => "",
+      "auth-external" => "",
+      "auth-ha1" => "",
+      "auth-http-async" => "",
+      "auth-imap" => "",
+      "auth-internal-yubikey" => "",
+      "auth-joomla" => "",
+      "auth-ldap" => "",
+      "auth-ldap2" => "",
+      "auth-pam" => "",
+      "auth-phpbb3" => "",
+      "auth-sql" => "",
+      "auth-wordpress" => "",
+      "auto-accept-subscriptions" => "",
+      "auto-activate-hosts" => "",
+      "benchmark-storage" => "",
+      "bidi" => "",
+      "block-outgoing" => "",
+      "block-registrations" => "",
+      "block-s2s-subscriptions" => "",
+      "block-strangers" => "",
+      "block-subscribes" => "",
+      "block-subscriptions" => "",
+      "blocking" => "",
+      "broadcast" => "",
+      "c2s-conn-throttle" => "",
+      "c2s-limit-sessions" => "",
+      "candy" => "",
+      "captcha-registration" => "",
+      "carbons" => "",
+      "carbons-adhoc" => "",
+      "carbons-copies" => "",
+      "checkcerts" => "",
+      "client-certs" => "",
+      "cloud-notify" => "",
+      "compact-resource" => "",
+      "compat-bind" => "",
+      "compat-dialback" => "",
+      "compat-muc-admin" => "",
+      "compat-vcard" => "",
+      "component-client" => "",
+      "component-roundrobin" => "",
+      "conformance-restricted" => "",
+      "couchdb" => "",
+      "csi" => "",
+      "csi-compat" => "",
+      "data-access" => "",
+      "default-bookmarks" => "",
+      "default-vcard" => "",
+      "delegation" => "",
+      "disable-tls" => "",
+      "discoitems" => "",
+      "dwd" => "",
+      "email-pass" => "",
+      "extdisco" => "",
+      "fallback-vcard" => "",
+      "filter-chatstates" => "",
+      "firewall" => "",
+      "flash-policy" => "",
+      "graceful-shutdown" => "",
+      "group-bookmarks" => "",
+      "host-blacklist" => "",
+      "host-guard" => "",
+      "http-altconnect" => "",
+      "http-dir-listing" => "",
+      "http-favicon" => "",
+      "http-index" => "",
+      "http-logging" => "",
+      "http-muc-log" => "",
+      "http-roster-admin" => "",
+      "http-upload" => "",
+      "http-user-count" => "",
+      "idlecompat" => "",
+      "incidents-handling" => "",
+      "inotify-reload" => "",
+      "invite" => "",
+      "ipcheck" => "",
+      "isolate-host" => "",
+      "jid-prep" => "",
+      "json-streams" => "",
+      "lastlog" => "",
+      "latex" => "",
+      "lib-ldap" => "",
+      "limit-auth" => "",
+      "limits" => "",
+      "list-inactive" => "",
+      "listusers" => "",
+      "log-auth" => "",
+      "log-events" => "",
+      "log-mark" => "",
+      "log-messages-sql" => "",
+      "log-rate" => "",
+      "log-sasl-mech" => "",
+      "log-slow-events" => "",
+      "mam" => "",
+      "mam-adhoc" => "",
+      "mam-archive" => "",
+      "mam-muc" => "",
+      "mamsub" => "",
+      "manifesto" => "",
+      "measure-cpu" => "",
+      "measure-memory" => "",
+      "message-logging" => "",
+      "migrate" => "",
+      "motd-sequential" => "",
+      "muc-access-control" => "",
+      "muc-ban-ip" => "",
+      "muc-config-restrict" => "",
+      "muc-intercom" => "",
+      "muc-limits" => "",
+      "muc-log" => "",
+      "muc-log-http" => "",
+      "muc-restrict-rooms" => "",
+      "munin" => "",
+      "net-dovecotauth" => "",
+      "offline-email" => "",
+      "onhold" => "",
+      "onions" => "",
+      "openid" => "",
+      "password-policy" => "",
+      "pastebin" => "",
+      "pep-vcard-avatar" => "",
+      "pinger" => "",
+      "poke-strangers" => "",
+      "post-msg" => "",
+      "presence-cache" => "",
+      "presence-dedup" => "",
+      "privacy-lists" => "",
+      "private-adhoc" => "",
+      "privilege" => "",
+      "proctitle" => "",
+      "profile" => "",
+      "proxy65-whitelist" => "",
+      "pubsub-eventsource" => "",
+      "pubsub-feeds" => "",
+      "pubsub-github" => "",
+      "pubsub-hub" => "",
+      "pubsub-mqtt" => "",
+      "pubsub-pivotaltracker" => "",
+      "pubsub-post" => "",
+      "pubsub-twitter" => "",
+      "query-client-ver" => "",
+      "rawdebug" => "",
+      "readonly" => "",
+      "register-dnsbl" => "",
+      "register-json" => "",
+      "register-redirect" => "",
+      "register-web" => "",
+      "reload-modules" => "",
+      "remote-roster" => "",
+      "require-otr" => "",
+      "roster-allinall" => "",
+      "roster-command" => "",
+      "s2s-auth-compat" => "",
+      "s2s-auth-dane" => "",
+      "s2s-auth-fingerprint" => "",
+      "s2s-auth-monkeysphere" => "",
+      "s2s-blacklist" => "",
+      "s2s-idle-timeout" => "",
+      "s2s-keepalive" => "",
+      "s2s-keysize-policy" => "",
+      "s2s-log-certs" => "",
+      "s2s-never-encrypt-blacklist" => "",
+      "s2s-reload-newcomponent" => "",
+      "s2s-whitelist" => "",
+      "s2soutinjection" => "",
+      "saslauth-muc" => "",
+      "saslname" => "",
+      "seclabels" => "",
+      "secure-interfaces" => "",
+      "server-contact-info" => "",
+      "server-status" => "",
+      "service-directories" => "",
+      "sift" => "",
+      "smacks" => "",
+      "smacks-offline" => "",
+      "sms-clickatell" => "",
+      "srvinjection" => "",
+      "sslv3-warn" => "",
+      "stanza-counter" => "",
+      "statistics" => "",
+      "statistics-auth" => "",
+      "statistics-cputotal" => "",
+      "statistics-mem" => "",
+      "statistics-statsd" => "",
+      "statsd" => "",
+      "storage-appendmap" => "",
+      "storage-gdbm" => "",
+      "storage-ldap" => "",
+      "storage-lmdb" => "",
+      "storage-memory" => "",
+      "storage-mongodb" => "",
+      "storage-muc-log" => "",
+      "storage-multi" => "",
+      "storage-xmlarchive" => "",
+      "streamstats" => "",
+      "strict-https" => "",
+      "support-contact" => "",
+      "swedishchef" => "",
+      "tcpproxy" => "",
+      "telnet-tlsinfo" => "",
+      "throttle-presence" => "",
+      "throttle-unsolicited" => "",
+      "tls-policy" => "",
+      "track-muc-joins" => "",
+      "turncredentials" => "",
+      "twitter" => "",
+      "uptime-presence" => "",
+      "vjud" => "",
+      "watchuntrusted" => "",
+      "webpresence" => ""
+    }
+  end
+  
+  #option "with-sqlite", "Build with SQLite support"
+  
+  modules.each do |name, desc|
+    option "with-#{name}-module", desc
+  end
+
   depends_on "lua51"
   depends_on "expat"
   depends_on "libidn"
   depends_on "openssl"
-  
-  if build.with? "sqlite"
-    depends_on "sqlite"
-  end
+  #depends_on "sqlite" if build.with? "sqlite"
 
   fails_with :llvm do
     cause "Lua itself compiles with llvm, but may fail when other software tries to link."
@@ -21,6 +249,10 @@ class Prosody < Formula
   resource "luarocks" do
     url "http://luarocks.org/releases/luarocks-2.2.0.tar.gz"
     sha1 "e2de00f070d66880f3766173019c53a23229193d"
+  end
+  
+  resource "modules" do
+    url "http://hg.prosody.im/prosody-modules/", :using => :hg
   end
 
   def install
@@ -100,9 +332,22 @@ class Prosody < Formula
     system "#{bin}/prosody-luarocks", "install", "luaexpat", "EXPAT_DIR=#{Formula["expat"].opt_prefix}"
     
     if build.with? "sqlite"
-      system "#{bin}/prosody-luarocks", "install", "luadbi"
-      system "#{bin}/prosody-luarocks", "install", "luadbi-sqlite3", "SQLITE_DIR=#{Formula["sqlite"].opt_prefix}"
-      system "#{bin}/prosody-luarocks", "install", "lposix"
+    #  system "#{bin}/prosody-luarocks", "install", "luadbi"
+    #  system "#{bin}/prosody-luarocks", "install", "luadbi-sqlite3", "SQLITE_DIR=#{Formula["sqlite"].opt_prefix}"
+    #  system "#{bin}/prosody-luarocks", "install", "lposix"
+    #end
+    
+    names = []
+    self.class.modules.each do |name|
+      names.push(name[0].gsub("-", "_")) if build.with? "#{name[0]}-module"
+    end
+        
+    if names.length > 0
+      resource("modules").stage do
+        names.each do |n|
+          (lib/"prosody/modules").install "mod_#{n}/mod_#{n}.lua"
+        end
+      end
     end
   end
 
@@ -128,18 +373,18 @@ class Prosody < Formula
         <true/>
         <key>ProgramArguments</key>
         <array>
-    	    <string>#{opt_bin}/prosodyctl</string>
-    	    <string>start</string>
+            <string>#{opt_bin}/prosodyctl</string>
+            <string>start</string>
         </array>
         <key>EnvironmentVariables</key>
         <dict>
-        	<key>PATH</key>
-        	<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+            <key>PATH</key>
+            <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
         </dict>
         <key>StandardErrorPath</key>
-        <string>#{var}/log/dovecot/prosody.err</string>
+        <string>#{var}/log/prosody/prosody.err</string>
         <key>StandardOutPath</key>
-        <string>#{var}/log/dovecot/prosody.log</string>
+        <string>#{var}/log/prosody/prosody.log</string>
       </dict>
     </plist>
     EOS
