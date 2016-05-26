@@ -1,7 +1,7 @@
 class Spectrum2 < Formula
   desc "Spectrum is an open source instant messaging transport"
   homepage "http://spectrum.im/"
-  head "https://github.com/hanzz/libtransport.git"
+  head "https://github.com/hanzz/spectrum2.git"
   url "https://github.com/hanzz/spectrum2/archive/2.0.3.tar.gz"
   sha256 '694172dfbf62d7de19bbcc06ba11113d238c86e36d39297b2f80d4b277e03933'
 
@@ -29,7 +29,11 @@ class Spectrum2 < Formula
       s.sub! /if(\s+)?\((CMAKE_COMPILER_IS_GNUCXX)\)([\n\s]+)(include_directories)/, "if\\1(\\2 OR APPLE)\\3\\4"
     end
     
-    inreplace "#{buildpath}/spectrum/src/CmakeLists.txt", /if(\s+)?\(NOT MSVC\)/, "if\\1(CMAKE_COMPILER_IS_GNUCXX)"
+    # Stable build needs a bit more help. Fixed in head. Remove with new release.
+    if build.stable?
+      inreplace "#{buildpath}/spectrum/src/CmakeLists.txt", /if(\s+)?\(NOT MSVC\)/, "if\\1(CMAKE_COMPILER_IS_GNUCXX)"
+    end
+      
     inreplace "#{buildpath}/spectrum_manager/src/CMakeLists.txt", /if(\s+)?\((CMAKE_COMPILER_IS_GNUCXX)\)([\n\s]+)(target_link_libraries)/, "if\\1(\\2 OR APPLE)\\3\\4"
           
     system "cmake . -DCMAKE_INSTALL_PREFIX=/ -DOPENSSL_ROOT_DIR=#{openssl.prefix} -DOPENSSL_INCLUDE_DIR=#{openssl.include} -DOPENSSL_LIBRARIES=#{openssl.lib}/libssl.dylib -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_OSX_SYSROOT=/ -Wno-dev"
