@@ -19,12 +19,19 @@ class Spectrum2 < Formula
   depends_on "protobuf"
   depends_on "sqlite"
 
-  patch :DATA
-
   def install
     ENV.deparallelize
     openssl = Formula["openssl"]
-
+    
+    inreplace "#{buildpath}/CMakeLists.txt" do |s|
+      s.sub! /(if\s*\(WIN32\))([\n\s]+)(set\(Boost_USE_STATIC_LIBS)(?m:(.+?))(else\(WIN32\))/, "\\1\\2\\3\\4elseif(APPLE)\n    set(Boost_USE_MULTITHREADED      ON)\n    find_package(Boost COMPONENTS program_options date_time system filesystem regex thread signals locale REQUIRED)\n\\5"
+      s.sub! /if(\s+)?\((CMAKE_COMPILER_IS_GNUCXX)\)([\n\s]+)(set\(openssl_DIR)/, "if\\1(\\2 OR APPLE)\\3\\4"
+      s.sub! /if(\s+)?\((CMAKE_COMPILER_IS_GNUCXX)\)([\n\s]+)(include_directories)/, "if\\1(\\2 OR APPLE)\\3\\4"
+    end
+    
+    inreplace "#{buildpath}/spectrum/src/CmakeLists.txt", /if(\s+)?\(NOT MSVC\)/, "if\\1(CMAKE_COMPILER_IS_GNUCXX)"
+    inreplace "#{buildpath}/spectrum_manager/src/CMakeLists.txt", /if(\s+)?\((CMAKE_COMPILER_IS_GNUCXX)\)([\n\s]+)(target_link_libraries)/, "if\\1(\\2 OR APPLE)\\3\\4"
+          
     system "cmake . -DCMAKE_INSTALL_PREFIX=/ -DOPENSSL_ROOT_DIR=#{openssl.prefix} -DOPENSSL_INCLUDE_DIR=#{openssl.include} -DOPENSSL_LIBRARIES=#{openssl.lib}/libssl.dylib -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_OSX_SYSROOT=/ -Wno-dev"
 
     system "make"
@@ -99,49 +106,3 @@ class Spectrum2 < Formula
     assert_match /#{version}/, shell_output("#{bin}/spectrum2_manager --version")
   end
 end
-
-__END__
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index d941288..1c6efc9 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -85,6 +85,9 @@ if (WIN32)
- 	set(Boost_USE_MULTITHREADED      ON)
- 	set(Boost_USE_STATIC_RUNTIME    OFF)
- 	find_package(Boost COMPONENTS program_options date_time system filesystem regex thread signals locale REQUIRED)
-+elseif(APPLE)
-+    set(Boost_USE_MULTITHREADED      ON)
-+    find_package(Boost COMPONENTS program_options date_time system filesystem regex thread signals locale REQUIRED)
- else(WIN32)
- 	LIST_CONTAINS(contains -lboost_program_options ${SWIFTEN_LIBRARY})
- 	if(contains)
-@@ -198,7 +201,7 @@ if (WIN32)
- endif()
- 
- 
--if (CMAKE_COMPILER_IS_GNUCXX)
-+if (CMAKE_COMPILER_IS_GNUCXX OR APPLE)
- set(openssl_DIR "${CMAKE_SOURCE_DIR}/cmake_modules")
- find_package(openssl)
- endif()
-@@ -439,7 +442,7 @@ include_directories(${EVENT_INCLUDE_DIRS})
- include_directories(${SWIFTEN_INCLUDE_DIR})
- include_directories(${Boost_INCLUDE_DIRS})
- 
--if (CMAKE_COMPILER_IS_GNUCXX)
-+if (CMAKE_COMPILER_IS_GNUCXX OR APPLE)
- include_directories(${OPENSSL_INCLUDE_DIR})
- endif()
- 
-diff --git a/spectrum_manager/src/CMakeLists.txt b/spectrum_manager/src/CMakeLists.txt
-index 7ddcc25..7ba2ee4 100644
---- a/spectrum_manager/src/CMakeLists.txt
-+++ b/spectrum_manager/src/CMakeLists.txt
-@@ -10,7 +10,7 @@ target_link_libraries(spectrum2_manager transport ${SWIFTEN_LIBRARY} ${PROTOBUF_
- if (${OPENSSL_FOUND})
- add_definitions(-DMG_ENABLE_SSL)
- endif()
--if (CMAKE_COMPILER_IS_GNUCXX)
-+if (CMAKE_COMPILER_IS_GNUCXX OR APPLE)
- target_link_libraries(spectrum2_manager ${OPENSSL_LIBRARIES})
- endif()
