@@ -248,7 +248,7 @@ class Prosody < Formula
 
   resource "luarocks" do
     url "http://luarocks.org/releases/luarocks-2.2.0.tar.gz"
-    sha1 "e2de00f070d66880f3766173019c53a23229193d"
+    sha256 "9b1a4ec7b103e2fb90a7ba8589d7e0c8523a3d6d54ac469b0bbc144292b9279c"
   end
   
   resource "modules" do
