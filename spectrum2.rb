@@ -14,7 +14,7 @@ class Spectrum2 < Formula
   depends_on "log4cxx"
   depends_on "mysql" => :optional
   depends_on "openssl"
-  depends_on "finch"
+  depends_on "pidgin" => ["without-gui"]
   depends_on "popt"
   depends_on "protobuf"
   depends_on "sqlite"
